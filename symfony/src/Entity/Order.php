@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass=OrderRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="`order`")
  */
 class Order
@@ -169,5 +170,13 @@ class Order
         $this->shippig_address = $shippig_address;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function generateOrderNumber(): void
+    {
+        $this->order_number = md5(uniqid());
     }
 }
