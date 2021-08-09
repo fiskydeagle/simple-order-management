@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource()
@@ -21,6 +22,7 @@ class Note
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank()
      */
     private string $description;
 

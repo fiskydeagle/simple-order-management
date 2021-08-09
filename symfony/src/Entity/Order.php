@@ -7,6 +7,7 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource()
@@ -29,11 +30,14 @@ class Order
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      */
     private string $order_number;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Choice({"pending", "failed", "success"})
      */
     private string $position;
 
@@ -44,18 +48,21 @@ class Order
 
     /**
      * @ORM\ManyToMany(targetEntity=Product::class)
+     * @Assert\NotBlank()
      */
     private Collection $products;
 
     /**
      * @ORM\ManyToOne(targetEntity=Address::class)
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank()
      */
     private Address $billing_address;
 
     /**
      * @ORM\ManyToOne(targetEntity=Address::class)
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank()
      */
     private Address $shippig_address;
 
