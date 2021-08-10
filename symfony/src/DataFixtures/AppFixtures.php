@@ -67,33 +67,24 @@ class AppFixtures extends Fixture
 
             $order->setPosition(Order::POSITON_SUCCESS);
 
-            $billingAddress = new Address();
             $randomCountryName = array_rand($this->countries);
-            $billingAddress->setCountry(
+            $order->setBillingAddressCountry(
                 $this->countryRespository->findOneBy(array('name' => $this->countries[$randomCountryName]))
             );
-            $billingAddress->setAddress($this->faker->address);
-            $billingAddress->setEmail($this->faker->email);
-            $billingAddress->setPhone($this->faker->phoneNumber);
-            $billingAddress->setZipCode($this->faker->postcode);
+            $order->setBillingAddressAddress($this->faker->address);
+            $order->setBillingAddressEmail($this->faker->email);
+            $order->setBillingAddressPhone($this->faker->phoneNumber);
+            $order->setBillingAddressZipCode($this->faker->postcode);
 
-            $manager->persist($billingAddress);
 
-            $order->setBillingAddress($billingAddress);
-
-            $shippingAddress = new Address();
             $randomCountryName = array_rand($this->countries);
-            $shippingAddress->setCountry(
+            $order->setShippingAddressCountry(
                 $this->countryRespository->findOneBy(array('name' => $this->countries[$randomCountryName]))
             );
-            $shippingAddress->setAddress($this->faker->address);
-            $shippingAddress->setEmail($this->faker->email);
-            $shippingAddress->setPhone($this->faker->phoneNumber);
-            $shippingAddress->setZipCode($this->faker->postcode);
-
-            $manager->persist($shippingAddress);
-
-            $order->setShippigAddress($shippingAddress);
+            $order->setShippingAddressAddress($this->faker->address);
+            $order->setShippingAddressEmail($this->faker->email);
+            $order->setShippingAddressPhone($this->faker->phoneNumber);
+            $order->setShippingAddressZipCode($this->faker->postcode);
 
             for ($j = 0; $j < rand(1, 10); $j++) {
                 $order->addProduct(

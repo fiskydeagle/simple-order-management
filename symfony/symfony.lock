@@ -240,6 +240,9 @@
             ".env"
         ]
     },
+    "symfony/form": {
+        "version": "v5.0.11"
+    },
     "symfony/framework-bundle": {
         "version": "4.4",
         "recipe": {
@@ -287,6 +290,9 @@
     },
     "symfony/mime": {
         "version": "v5.0.1"
+    },
+    "symfony/options-resolver": {
+        "version": "v5.0.11"
     },
     "symfony/orm-pack": {
         "version": "v1.0.7"
