@@ -167,7 +167,7 @@ class OrdersController extends AbstractController
             return $this->redirectToRoute('orders');
         }
 
-        return $pdfGenerator->generateDeliveryNotes($order, true);
+        return $pdfGenerator->generateDeliveryNotes($order);
     }
 
     /**
@@ -185,6 +185,6 @@ class OrdersController extends AbstractController
             return $this->redirectToRoute('orders');
         }
 
-        return $pdfGenerator->generateBill($order, true);
+        return $pdfGenerator->generateBill($order);
     }
 }
