@@ -8,9 +8,45 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Controller\DeliveryNotesAction;
+use App\Controller\BillsAction;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     itemOperations={
+ *          "get",
+ *          "delete",
+ *          "put",
+ *          "get-delivery-notes"={
+ *              "method"="GET",
+ *              "path"="/orders/delivery-notes/{id}",
+ *              "controller"=DeliveryNotesAction::class,
+ *              "openapi_context"= {
+ *                 "parameters" = {
+ *                     {
+ *                         "name" = "id",
+ *                         "in" = "path",
+ *                         "type" = "string",
+ *                     }
+ *                 }
+ *             }
+ *          },
+ *          "get-bill"={
+ *              "method"="GET",
+ *              "path"="/orders/bill/{id}",
+ *              "controller"=BillsAction::class,
+ *              "openapi_context"= {
+ *                 "parameters" = {
+ *                     {
+ *                         "name" = "id",
+ *                         "in" = "path",
+ *                         "type" = "string",
+ *                     }
+ *                 }
+ *             }
+ *          }
+ *     }
+ * )
  * @ORM\Entity(repositoryClass=OrderRepository::class)
  * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="`order`")

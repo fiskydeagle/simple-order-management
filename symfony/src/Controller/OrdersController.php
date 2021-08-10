@@ -8,6 +8,7 @@ use App\Entity\Order;
 use App\Form\NoteType;
 use App\Form\OrderType;
 use App\Repository\OrderRepository;
+use App\Services\PdfGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,8 +59,8 @@ class OrdersController extends AbstractController
     /**
      * @Route("/orders/update/{orderNumber}", name="order_update")
      */
-    public function updateOrder(Request $request, OrderRepository $orderRepository, $orderNumber): Response {
-        $order = $orderRepository->findOneBy(array('order_number' => $orderNumber));
+    public function updateOrder(Request $request, $orderNumber): Response {
+        $order = $this->orderRepository->findOneBy(array('order_number' => $orderNumber));
         if (!$order) {
             $this->addFlash(
                 'danger',
@@ -117,7 +118,7 @@ class OrdersController extends AbstractController
     /**
      * @Route("/orders/note/{orderNumber}", name="order_new_note")
      */
-    public function newOrderNote(Request $request, OrderRepository $orderRepository, $orderNumber): Response
+    public function newOrderNote(Request $request, $orderNumber): Response
     {
         $order = $this->orderRepository->findOneBy(array('order_number' => $orderNumber));
         if (!$order) {
@@ -149,5 +150,41 @@ class OrdersController extends AbstractController
         return $this->render('notes/new.html.twig',[
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/orders/delivery-notes/{orderNumber}", name="order_delivery_note")
+     */
+    public function orderDeliveryNotes(PdfGenerator $pdfGenerator, $orderNumber): Response
+    {
+        $order = $this->orderRepository->findOneBy(array('order_number' => $orderNumber));
+        if (!$order) {
+            $this->addFlash(
+                'danger',
+                'Order not found'
+            );
+
+            return $this->redirectToRoute('orders');
+        }
+
+        return $pdfGenerator->generateDeliveryNotes($order, true);
+    }
+
+    /**
+     * @Route("/orders/bills/{orderNumber}", name="order_bill")
+     */
+    public function orderBill(PdfGenerator $pdfGenerator, $orderNumber): Response
+    {
+        $order = $this->orderRepository->findOneBy(array('order_number' => $orderNumber));
+        if (!$order) {
+            $this->addFlash(
+                'danger',
+                'Order not found'
+            );
+
+            return $this->redirectToRoute('orders');
+        }
+
+        return $pdfGenerator->generateBill($order, true);
     }
 }

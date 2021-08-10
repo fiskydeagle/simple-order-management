@@ -25,9 +25,11 @@
                 <tr>
                     <th scope="row">{{ order.getId() }}</th>
                     <td>
-                        {% for product in order.getProducts() %}
-                            {{ product.getName() }}-{{ product.getPrice() }}&euro;<br/>
-                        {% endfor %}
+                        <ul>
+                            {% for product in order.getProducts() %}
+                                <li>{{ product.getName() }} - {{ product.getPrice() }}&euro;</li>
+                            {% endfor %}
+                        </ul>
                     </td>
                     <td>
                         {{ order.getBillingAddressCountry().getName() }},
@@ -42,8 +44,8 @@
                         <div class="d-flex">
                             <a href="{{ path('order_update', {orderNumber: order.getOrderNumber()}) }}" type="button" class="btn btn-sm btn-primary mr-1">Edit</a>
                             <a href="{{ path('order_delete', {orderNumber: order.getOrderNumber()}) }}" type="button" class="btn btn-sm btn-danger mr-1">Delete</a>
-                            <a href="" type="button" class="btn btn-sm btn-success mr-1">Note</a>
-                            <a href="" type="button" class="btn btn-sm btn-success">Bill</a>
+                            <a href="{{ path('order_delivery_note', {orderNumber: order.getOrderNumber()}) }}" type="button" class="btn btn-sm btn-success mr-1">Note</a>
+                            <a href="{{ path('order_bill', {orderNumber: order.getOrderNumber()}) }}" type="button" class="btn btn-sm btn-success">Bill</a>
                         </div>
                     </td>
                 </tr>
