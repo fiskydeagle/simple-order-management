@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,6 +18,20 @@ class OrderRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Order::class);
+    }
+
+    public function findOrdersSumByRangeDates(string $startDate, string $endDate)
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.created_at BETWEEN :startDate AND :endDate')
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->select('SUM(o.total) as dailyTotal, SUBSTRING(o.created_at, 1, 10) as date')
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->getQuery()
+            ->getResult(Query::HYDRATE_ARRAY)
+            ;
     }
 
     // /**

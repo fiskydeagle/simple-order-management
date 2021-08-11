@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Address;
 use App\Entity\Note;
 use App\Entity\Order;
 use App\Form\NoteType;

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Controller\DeliveryNotesAction;
 use App\Controller\BillsAction;
+use App\Controller\OrdersSumAction;
 
 /**
  * @ApiResource(
@@ -45,6 +46,31 @@ use App\Controller\BillsAction;
  *                 }
  *             }
  *          }
+ *     },
+ *     collectionOperations={
+ *          "get",
+ *          "post",
+ *          "get_orders_sum"={
+ *              "method"="GET",
+ *              "path"="/orders/sum",
+ *              "controller"=OrdersSumAction::class,
+ *              "openapi_context"= {
+ *                 "parameters" = {
+ *                     {
+ *                         "name" = "start_date",
+ *                         "in" = "query",
+ *                         "type" = "string",
+ *                         "format": "date-time"
+ *                     },
+*                      {
+ *                         "name" = "end_date",
+ *                         "in" = "query",
+ *                         "type" = "string",
+ *                         "format": "date-time"
+ *                     }
+ *                 }
+ *             }
+ *           }
  *     }
  * )
  * @ORM\Entity(repositoryClass=OrderRepository::class)
@@ -83,9 +109,29 @@ class Order
 
     /**
      * @ORM\ManyToMany(targetEntity=Product::class)
-     * @Assert\NotBlank()
+     * @Assert\Count(
+     *      min = "1",
+     *      minMessage = "You have to select at least 1 product     "
+     * )
      */
     private ?Collection $products;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank()
+     */
+    private \DateTimeInterface $created_at;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank()
+     */
+    private \DateTimeInterface $updated_at;
+
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2)
+     */
+    private float $total;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Country")
@@ -359,11 +405,70 @@ class Order
         return $this;
     }
 
+    public function getCreatedAt(): \DateTimeInterface
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): \DateTimeInterface
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updated_at): self
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getTotal(): float
+    {
+        return $this->total;
+    }
+
+    public function setTotal(float $total): self
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
     /**
-     * @ORM\PrePersist
+     * @ORM\PrePersist()
      */
     public function generateOrderNumber(): void
     {
         $this->order_number = md5(uniqid());
+        $this->setCreatedAt(new \DateTime('now'));
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new \DateTime('now'));
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function updateTotal(): void
+    {
+        $total = 0;
+        foreach ($this->getProducts() as $product) {
+            $total += floatval($product->getPrice());
+        }
+        $this->setTotal($total);
     }
 }
