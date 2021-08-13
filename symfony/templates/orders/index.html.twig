@@ -15,9 +15,11 @@
                 <th scope="col">#</th>
                 <th scope="col">Products</th>
                 <th scope="col">Total</th>
-                <th scope="col">Billing Address</th>
-                <th scope="col">Shipping Address</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Addresses</th>
                 <th scope="col">Order Position</th>
+                <th scope="col">Created Date</th>
+                <th scope="col">Payed</th>
                 <th scope="col">Actions</th>
             </tr>
             </thead>
@@ -35,15 +37,18 @@
                     <td>
                         {{ order.getTotal()|number_format(2, '.', ',') }}&euro;
                     </td>
+                    <td>{{ order.getCustomer() }}</td>
                     <td>
+                        <strong>Billing Address</strong> <br/>
                         {{ order.getBillingAddressCountry().getName() }},
-                        {{ order.getBillingAddressAddress() }}
-                    </td>
-                    <td>
+                        {{ order.getBillingAddressAddress() }}<br>
+                        <strong>Shipping Address</strong> <br/>
                         {{ order.getShippingAddressCountry().getName() }},
                         {{ order.getShippingAddressAddress() }}
                     </td>
                     <td>{{ order.getPosition() }}</td>
+                    <td>{{ order.getCreatedAt()|date("d/m/Y") }}</td>
+                    <td>{{ order.getPayments()|length ? 'Yes' : 'No' }}</td>
                     <td>
                         <div class="d-flex">
                             <a href="{{ path('order_update', {orderNumber: order.getOrderNumber()}) }}" type="button" class="btn btn-sm btn-primary mr-1">Edit</a>

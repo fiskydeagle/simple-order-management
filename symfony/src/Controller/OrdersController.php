@@ -47,12 +47,19 @@ class OrdersController extends AbstractController
             $em->flush();
 
             $this->addFlash('info','Submitted Successfully!');
+            die($this->redirect('/orders'));
             return $this->redirect('/orders');
         }
 
-        return $this->render('orders/new.html.twig',[
+        die(
+            $this->renderView('orders/new.html.twig',[
+                'form' => $form->createView()
+            ])
+        );
+
+        /*return $this->render('orders/new.html.twig',[
             'form' => $form->createView()
-        ]);
+        ]);*/
     }
 
     /**
@@ -60,6 +67,46 @@ class OrdersController extends AbstractController
      */
     public function updateOrder(Request $request, $orderNumber): Response {
         $order = $this->orderRepository->findOneBy(array('order_number' => $orderNumber));
+        if (!$order) {
+            $this->addFlash(
+                'danger',
+                'Order not found'
+            );
+
+            return $this->redirectToRoute('orders');
+        }
+
+        $form = $this->createForm(OrderType::class, $order);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->flush();
+
+            $this->addFlash('info','Updated Successfully!');
+            return $this->redirect('/orders');
+        }
+
+        /*die(
+            $this->renderView('orders/update.html.twig',[
+                'form' => $form->createView(),
+                'notes' => $order->getNotes(),
+                'orderNumber' => $order->getOrderNumber(),
+            ])
+        );*/
+
+       return $this->render('orders/update.html.twig',[
+            'form' => $form->createView(),
+            'notes' => $order->getNotes(),
+            'orderNumber' => $order->getOrderNumber(),
+        ]);
+    }
+
+    /**
+     * @Route("/orders/update2/{id}", name="order_update_byid")
+     */
+    public function updateOrderByID(Request $request, $id): Response {
+        $order = $this->orderRepository->find($id);
         if (!$order) {
             $this->addFlash(
                 'danger',

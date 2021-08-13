@@ -4,8 +4,10 @@ namespace App\DataFixtures;
 
 use App\Entity\Address;
 use App\Entity\Country;
+use App\Entity\Customer;
 use App\Entity\Note;
 use App\Entity\Order;
+use App\Entity\Payment;
 use App\Entity\Product;
 use App\Repository\CountryRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -27,8 +29,10 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $this->loadProducts($manager);
+        $this->loadCustomers($manager);
         $this->loadCountries($manager);
         $this->loadOrders($manager);
+        $this->loadPayments($manager);
     }
 
     public function loadProducts(ObjectManager $manager)
@@ -43,6 +47,23 @@ class AppFixtures extends Fixture
             $this->setReference('product_' . $i, $product);
 
             $manager->persist($product);
+        }
+
+        $manager->flush();
+    }
+
+    public function loadCustomers(ObjectManager $manager)
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $customer = new Customer();
+
+            $customer->setFirstName($this->faker->firstName());
+            $customer->setLastName($this->faker->lastName());
+            $customer->setBalance($this->faker->randomFloat(2,1000,2000));
+
+            $this->setReference('customer' . $i, $customer);
+
+            $manager->persist($customer);
         }
 
         $manager->flush();
@@ -65,7 +86,10 @@ class AppFixtures extends Fixture
         for ($i = 0; $i < 10; $i++) {
             $order = new Order();
 
-            $order->setPosition(Order::POSITON_SUCCESS);
+            $order->setPosition(Order::POSITON_PENDING);
+            $order->setCustomer($this->getReference('customer' . ceil(rand(0, 9))));
+
+            $order->setCreatedAt($this->faker->dateTimeThisMonth);
 
             $randomCountryName = array_rand($this->countries);
             $order->setBillingAddressCountry(
@@ -100,7 +124,24 @@ class AppFixtures extends Fixture
                 $order->addNote($note);
             }
 
+            $this->setReference('order_' . $i, $order);
+
             $manager->persist($order);
+        }
+
+        $manager->flush();
+    }
+
+    public function loadPayments(ObjectManager $manager)
+    {
+        for ($i = 0; $i < rand(0, 9); $i++) {
+            $order = $this->getReference('order_' . $i);
+
+            $payment = new Payment();
+            $payment->setCustomer($order->getCustomer());
+            $payment->setInvoice($order);
+
+            $manager->persist($payment);
         }
 
         $manager->flush();

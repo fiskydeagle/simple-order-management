@@ -32,7 +32,7 @@ class OrdersSumAction
         }
 
 
-        return $this->ordersSumDataProvider->getCollection(Order::class);
+        return $this->ordersSumDataProvider->getCollection(Order::class, 'get_orders_sum');
     }
 
     private function isDateTime($date) {

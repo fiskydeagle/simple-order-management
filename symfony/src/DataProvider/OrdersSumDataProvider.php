@@ -22,7 +22,7 @@ final class OrdersSumDataProvider implements CollectionDataProviderInterface, Re
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
     {
-        return Order::class === $resourceClass;
+        return Order::class === $resourceClass && $operationName == 'get_orders_sum';
     }
     public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {

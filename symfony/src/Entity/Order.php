@@ -117,21 +117,32 @@ class Order
     private ?Collection $products;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank()
      */
-    private \DateTimeInterface $created_at;
+    private ?Customer $customer;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
      */
-    private \DateTimeInterface $updated_at;
+    private ?\DateTimeInterface $created_at = null;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private ?\DateTimeInterface $updated_at = null;
 
     /**
      * @ORM\Column(type="decimal", precision=10, scale=2)
      */
     private float $total;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="orders")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private ?Customer $Customer;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Country")
@@ -197,10 +208,16 @@ class Order
      */
     private ?string $shipping_address_phone;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Payment::class, mappedBy="invoice", orphanRemoval=true)
+     */
+    private $payments;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
         $this->products = new ArrayCollection();
+        $this->payments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -405,7 +422,7 @@ class Order
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->created_at;
     }
@@ -417,7 +434,7 @@ class Order
         return $this;
     }
 
-    public function getUpdatedAt(): \DateTimeInterface
+    public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updated_at;
     }
@@ -441,13 +458,27 @@ class Order
         return $this;
     }
 
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
     /**
      * @ORM\PrePersist()
      */
     public function generateOrderNumber(): void
     {
         $this->order_number = md5(uniqid());
-        $this->setCreatedAt(new \DateTime('now'));
+        if (!$this->getCreatedAt() || $this->getCreatedAt() == null) {
+            $this->setCreatedAt(new \DateTime('now'));
+        }
     }
 
     /**
@@ -470,5 +501,35 @@ class Order
             $total += floatval($product->getPrice());
         }
         $this->setTotal($total);
+    }
+
+    /**
+     * @return Collection|Payment[]
+     */
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments[] = $payment;
+            $payment->setInvoice($this);
+        }
+
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): self
+    {
+        if ($this->payments->removeElement($payment)) {
+            // set the owning side to null (unless already changed)
+            if ($payment->getInvoice() === $this) {
+                $payment->setInvoice(null);
+            }
+        }
+
+        return $this;
     }
 }
